@@ -1,0 +1,130 @@
+1. INSTALLED_APPS Configuration (settings.py)
+In my Django settings.py, I’ve included several built-in apps like admin, auth, sessions, and static file support. Importantly, I've added two custom apps:
+
+'RestApiapp' -The custom application where the employee model and APIs reside.
+
+'rest_framework' -The Django REST Framework, a powerful and flexible toolkit for building APIs.
+
+This registration ensures Django loads these apps, includes their models in the database, and activates any middleware or configurations they use.
+
+2. URL Routing (urls.py in project folder)
+Then defined The project-level URL patterns with:
+
+
+path('', include('RestApiapp.urls'))
+This tells Django to delegate all incoming requests to RestApiapp/urls.py for further routing. The admin panel is separately included with:
+
+path('admin/', admin.site.urls)
+This allows us to manage our Employee model in the admin interface.
+
+3. Model Definition (models.py)
+In the RestApiapp/models.py, I defined the Employee model with fields:
+
+ename (employee name)
+
+eid (employee ID)
+
+email (unique identifier)
+
+password (for login, stored as hashed)
+
+etreatment (custom employee data)
+
+Using __str__ to return the employee name is helpful for readability in the admin panel.
+
+4. Admin Panel Registration (admin.py)
+You registered the Employee model with:
+
+
+admin.site.register(Employee)
+This enables us to create, view, edit, and delete employee records from the Django admin dashboard.
+
+5. Serializers (serializers.py)
+The serializer EmployeeSerializers is a subclass of ModelSerializer, which automatically maps model fields to JSON:
+
+fields = '__all__' includes all fields.
+
+extra_kwargs = {'password': {'write_only': True}} ensures the password is only writable via API (won’t be returned in GET responses), which is a good security practice.
+
+6. API URLs (RestApiapp/urls.py)
+Here, I mapped various API endpoints to their corresponding view functions. Examples:
+
+GET/users → Get all users
+
+POST/users → Create a new user
+
+GET/user/<id> → Get specific user by ID
+
+PUT/user/<id> → Update specific user
+
+DELETE/user/<id> → Delete user
+
+GET/search/ → Search users by name
+
+login → User login with email and password
+
+7. API Views (views.py)
+All views use the @api_view decorator from Django REST Framework to specify allowed HTTP methods.
+
+a) Health Check
+
+def health_check(request):
+Simple endpoint to confirm API is up and running.
+
+b) Get All Users
+
+def get_all_users(request):
+Fetches all employees from the database and returns them serialized as JSON.
+
+c) Get User by ID
+
+def get_user_by_id(request, id):
+Uses get_object_or_404() to fetch a single user. If not found, returns 404.
+
+d) Create User
+
+def create_user(request):
+Takes JSON input, validates using the serializer, hashes the password using make_password(), and saves it. Returns a success response with the user data.
+
+e) Update User
+
+def update_user(request, id):
+Fetches a user by ID, and updates their details using serializer validation. Returns the updated data if successful.
+
+f) Delete User
+
+def delete_user(request, id):
+Deletes the user by ID and returns a confirmation message.
+
+g) Search Users
+
+def search_users(request):
+Uses Django’s Q object to filter users by name (case-insensitive). Supports partial matches using icontains.
+
+h) Login User
+
+def login_user(request):
+Accepts email and password. Looks up the user, verifies the password with check_password(), and returns the user ID if correct. If the email or password is invalid, returns appropriate error messages.
+
+
+
+links:
+ http://127.0.0.1:8000/
+
+admin:http://127.0.0.1:8000/admin/
+username:harsha
+password:harsha
+
+Get All Users:http://127.0.0.1:8000/GET/users
+
+Get User by ID:http://127.0.0.1:8000/GET/user/3
+
+Create User : http://127.0.0.1:8000/POST/users
+  
+Update Uer:http://127.0.0.1:8000/PUT/user/3
+
+Delete User:http://127.0.0.1:8000/DELETE/user/3
+
+Serach User:http://127.0.0.1:8000/GET/search/?name=harsha
+
+Login User:http://127.0.0.1:8000/login?return_url=/orders
